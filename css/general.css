@@ -1,0 +1,36 @@
+* {
+  padding: 0;
+  margin: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 62.5%;
+}
+
+body {
+  font-family: "Nunito Sans", sans-serif;
+  line-height: 1;
+  font-weight: 400;
+  background-color: #63d471;
+  background-image: linear-gradient(315deg, #63d471 0%, #233329 74%);
+  background-size: cover;
+  background-repeat: no-repeat;
+  min-height: 100vh;
+}
+
+.container {
+  max-width: 120rem;
+  min-height: 117rem;
+  margin: 4vw auto;
+  background-color: #fff;
+  border-radius: 9px;
+  overflow: hidden;
+  box-shadow: 0 2rem 6rem 0.5rem rgba(#615551, 0.2);
+  display: grid;
+  grid-template-rows: 10rem minmax(100rem, auto);
+  grid-template-columns: 1fr 2fr;
+  grid-template-areas:
+    "head head"
+    "list recipe";
+}
