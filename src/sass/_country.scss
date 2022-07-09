@@ -17,11 +17,6 @@
       position: absolute;
       top: 0;
       left: 0;
-      background-image: linear-gradient(
-        to right bottom,
-        $color-grad-1,
-        $color-grad-2
-      );
       opacity: 0.6;
     }
   }
@@ -64,6 +59,16 @@
 
   ///////////
   // DETAILS
+
+  &__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    button {
+      margin-right: 2rem;
+    }
+  }
   &__details {
     display: flex;
     align-items: center;
@@ -90,6 +95,33 @@
 
   &__info-data {
     margin-right: 0.5rem;
+    font-weight: 700;
+  }
+
+  &__info-section {
+    padding: 5rem 8rem;
+    font-size: 1.6rem;
+    line-height: 1.4;
+    background-color: $color-grey-light-2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
+
+  &__info-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 5rem 15rem;
+  }
+
+  &__fact {
+    display: flex;
+  }
+
+  &__desc {
+    margin-right: 1rem;
+    flex: 0 0 auto;
     font-weight: 700;
   }
 }

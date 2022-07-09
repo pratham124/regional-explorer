@@ -544,7 +544,6 @@ body {
   height: 100%;
   width: 100%;
   opacity: .6;
-  background-image: linear-gradient(to bottom right, #63d471, #233329);
   display: block;
   position: absolute;
   top: 0;
@@ -585,6 +584,16 @@ body {
   }
 }
 
+.country__head {
+  justify-content: space-between;
+  align-items: center;
+  display: flex;
+}
+
+.country__head button {
+  margin-right: 2rem;
+}
+
 .country__details {
   align-items: center;
   padding: 7.5rem 8rem 3.5rem;
@@ -614,28 +623,31 @@ body {
   font-weight: 700;
 }
 
-.country__info-buttons {
-  margin-left: 1.6rem;
-  display: flex;
-  transform: translateY(-1px);
-}
-
-.country__user-generated {
-  height: 4rem;
-  width: 4rem;
-  background-color: #eeeae8;
-  border-radius: 10rem;
-  justify-content: center;
+.country__info-section {
+  height: 100%;
+  background-color: #f2efee;
+  flex-direction: column;
   align-items: center;
-  margin-left: auto;
-  margin-right: 1.75rem;
+  padding: 5rem 8rem;
+  font-size: 1.6rem;
+  line-height: 1.4;
   display: flex;
 }
 
-.country__user-generated svg {
-  height: 2.25rem;
-  width: 2.25rem;
-  fill: #2b8a3e;
+.country__info-list {
+  grid-template-columns: 1fr 1fr;
+  gap: 5rem 15rem;
+  display: grid;
+}
+
+.country__fact {
+  display: flex;
+}
+
+.country__desc {
+  flex: none;
+  margin-right: 1rem;
+  font-weight: 700;
 }
 
 /*# sourceMappingURL=index.f7626f62.css.map */

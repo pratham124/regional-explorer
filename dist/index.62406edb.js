@@ -1,4 +1,4 @@
-const recipeContainer = document.querySelector(".recipe");
+const countryContainer = document.querySelector(".country");
 const timeout = function(s) {
     return new Promise(function(_, reject) {
         setTimeout(function() {
