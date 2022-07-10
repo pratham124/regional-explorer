@@ -636,7 +636,7 @@ body {
 
 .country__info-list {
   grid-template-columns: 1fr 1fr;
-  gap: 5rem 15rem;
+  gap: 5rem 10rem;
   display: grid;
 }
 

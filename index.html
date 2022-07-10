@@ -15,7 +15,7 @@
   <link rel="manifest" href="src/img/favicon_io/site.webmanifest">
 
   <link rel="stylesheet" href="src/sass/main.scss" />
-  <script defer src="src/js/controller.js"></script>
+  <script defer src="src/js/controller.js" type="module"></script>
 
   <title>Regional Explorer</title>
 </head>
@@ -83,6 +83,8 @@
 
     <div class="search-results">
       <ul class="results">
+        <a href="#japan">Link 1</a>
+        <a href="#germany">Link 2</a>
         <!-- 
           <li class="preview">
             <a class="preview__link preview__link--active" href="#23456">
@@ -117,14 +119,14 @@
     </div>
 
     <div class="country">
-      <!-- <div class="message">
+      <div class="message">
         <div>
           <svg>
             <use href="src/img/icons.svg#icon-smile"></use>
           </svg>
         </div>
         <p>Start by searching for a region!!</p>
-      </div> -->
+      </div>
 
       <!-- <div class="spinner">
           <svg>
@@ -142,7 +144,7 @@
           </div> -->
 
 
-      <figure class="country__fig">
+      <!-- <figure class="country__fig">
         <img src="germany.png" alt="Germany" class="country__img" />
         <h1 class="country__title">
           <span>Germany</span>
@@ -201,7 +203,7 @@
             </div>
           </li>
         </ul>
-      </div>
+      </div> -->
 
 
     </div>
