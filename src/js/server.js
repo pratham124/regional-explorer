@@ -1,7 +1,12 @@
+import { async } from "regenerator-runtime";
+
 const TIMEOUT_TIME = 500;
 
 export const state = {
   country: {},
+  search: {
+    results: [],
+  },
 };
 
 const timeout = function (s) {
@@ -34,3 +39,19 @@ export const createCountry = async function (id) {
     throw err;
   }
 };
+
+export const searchResults = async function (search) {
+  try {
+    const fetchPromise = fetch(
+      `https://restcountries.com/v3.1/region/${search}`
+    );
+    const res = await Promise.race([fetchPromise, timeout(TIMEOUT_TIME)]);
+    const data = await res.json();
+    state.search.results = data;
+    // console.log(state.search.results);
+  } catch (err) {
+    throw err;
+  }
+};
+
+// searchResults("europe");

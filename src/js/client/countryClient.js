@@ -1,9 +1,9 @@
 import icons from "url:../../img/icons.svg";
+import Client from "./Client";
 
-class countryClient {
-  #data;
-  #parentEl = document.querySelector(".country");
-  #errorMessage = "We could not find that country. Please try another one!";
+class countryClient extends Client {
+  _parentEl = document.querySelector(".country");
+  _errorMessage = "We could not find that country. Please try another one!";
 
   _renderSpinner() {
     const markup = `
@@ -13,8 +13,8 @@ class countryClient {
           </svg>
         </div>
   `;
-    this.#parentEl.innerHTML = "";
-    this.#parentEl.insertAdjacentHTML("afterbegin", markup);
+    this._parentEl.innerHTML = "";
+    this._parentEl.insertAdjacentHTML("afterbegin", markup);
   }
 
   _renderError(message = this._errorMessage) {
@@ -25,11 +25,11 @@ class countryClient {
                 <use href="${icons}#icon-alert-triangle"></use>
               </svg>
             </div>
-            <p>${this.#errorMessage}</p>
+            <p>${this._errorMessage}</p>
           </div>
     `;
-    this.#parentEl.innerHTML = "";
-    this.#parentEl.insertAdjacentHTML("afterbegin", markup);
+    this._parentEl.innerHTML = "";
+    this._parentEl.insertAdjacentHTML("afterbegin", markup);
   }
 
   _addHandler(handler) {
@@ -38,30 +38,23 @@ class countryClient {
     );
   }
 
-  _display(data) {
-    this.#data = data;
-    const markup = this.#generateMarkup();
-    this.#parentEl.innerHTML = "";
-    this.#parentEl.insertAdjacentHTML("afterbegin", markup);
-  }
-
-  #generateMarkup() {
+  _generateMarkup() {
     return `
      <figure class="country__fig">
-        <img src="${this.#data.img}" alt="Country Flag" class="country__img" />
+        <img src="${this._data.img}" alt="Country Flag" class="country__img" />
         <h1 class="country__title">
-          <span>${this.#data.name}</span>
+          <span>${this._data.name}</span>
         </h1>
       </figure>
       <div class="country__head">
 
         <div class="country__details">
           <div class="country__info">
-            <span class="country__info-text">${this.#data.officialName}</span>
+            <span class="country__info-text">${this._data.officialName}</span>
           </div>
           <div class="country__info">
             <span class="country__info-data country__info-data--people">Continent:</span>
-            <span class="country__info-text">${this.#data.continent}</span>
+            <span class="country__info-text">${this._data.continent}</span>
 
           </div>
         </div>
@@ -80,7 +73,7 @@ class countryClient {
 
             <div class="country__desc">Area:</div>
             <div class="country__description">
-              ${this.#data.area} km²
+              ${this._data.area} km²
             </div>
           </li>
 
@@ -88,21 +81,21 @@ class countryClient {
 
             <div class="country__desc">Capital:</div>
             <div class="country__description">
-              ${this.#data.capital}
+              ${this._data.capital}
             </div>
           </li>
           <li class="country__fact">
 
             <div class="country__desc">Citizens:</div>
             <div class="country__description">
-              ${this.#data.citizens}
+              ${this._data.citizens}
             </div>
           </li>
           <li class="country__fact">
 
             <div class="country__desc">Population:</div>
             <div class="country__description">
-              ${(this.#data.population / 1000000).toFixed(2)} million
+              ${(this._data.population / 1000000).toFixed(2)} million
             </div>
           </li>
         </ul>

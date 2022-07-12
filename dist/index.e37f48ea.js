@@ -541,8 +541,10 @@ var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 var _serverJs = require("./server.js");
 var _countryClientJs = require("./client/countryClient.js");
 var _countryClientJsDefault = parcelHelpers.interopDefault(_countryClientJs);
-const countryContainer = document.querySelector(".country");
-// https://forkify-api.herokuapp.com/v2
+var _searchClientJs = require("./client/searchClient.js");
+var _searchClientJsDefault = parcelHelpers.interopDefault(_searchClientJs);
+var _resultClientJs = require("./client/resultClient.js");
+var _resultClientJsDefault = parcelHelpers.interopDefault(_resultClientJs);
 ///////////////////////////////////////
 const countryControl = async function() {
     try {
@@ -550,18 +552,26 @@ const countryControl = async function() {
         if (!id) return;
         (0, _countryClientJsDefault.default)._renderSpinner();
         await _serverJs.createCountry(id);
-        console.log(_serverJs.state.country);
+        // console.log(server.state.country);
         (0, _countryClientJsDefault.default)._display(_serverJs.state.country);
     } catch (err) {
         console.log(err);
     }
 };
+const searchControl = async function() {
+    const search = (0, _searchClientJsDefault.default)._userSearch();
+    if (!search) return;
+    await _serverJs.searchResults(search);
+    // console.log(server.state.search.results);
+    (0, _resultClientJsDefault.default)._display(_serverJs.state.search.results);
+};
 const init = function() {
     (0, _countryClientJsDefault.default)._addHandler(countryControl);
+    (0, _searchClientJsDefault.default)._addHandler(searchControl);
 };
 init();
 
-},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../img/icons.svg":"loVOp","./server.js":"iIJIp","./client/countryClient.js":"amW5p"}],"49tUX":[function(require,module,exports) {
+},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../img/icons.svg":"loVOp","./server.js":"iIJIp","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB"}],"49tUX":[function(require,module,exports) {
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("../modules/web.clear-immediate");
 require("../modules/web.set-immediate");
@@ -2295,9 +2305,14 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "createCountry", ()=>createCountry);
+parcelHelpers.export(exports, "searchResults", ()=>searchResults);
+var _regeneratorRuntime = require("regenerator-runtime");
 const TIMEOUT_TIME = 500;
 const state = {
-    country: {}
+    country: {},
+    search: {
+        results: []
+    }
 };
 const timeout = function(s) {
     return new Promise(function(_, reject) {
@@ -2328,16 +2343,31 @@ const createCountry = async function(id) {
         throw err;
     }
 };
+const searchResults = async function(search) {
+    try {
+        const fetchPromise = fetch(`https://restcountries.com/v3.1/region/${search}`);
+        const res = await Promise.race([
+            fetchPromise,
+            timeout(TIMEOUT_TIME)
+        ]);
+        const data = await res.json();
+        state.search.results = data;
+    // console.log(state.search.results);
+    } catch (err) {
+        throw err;
+    }
+}; // searchResults("europe");
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"amW5p":[function(require,module,exports) {
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","regenerator-runtime":"dXNgZ"}],"amW5p":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-class countryClient {
-    #data;
-    #parentEl = document.querySelector(".country");
-    #errorMessage = "We could not find that country. Please try another one!";
+var _client = require("./Client");
+var _clientDefault = parcelHelpers.interopDefault(_client);
+class countryClient extends (0, _clientDefault.default) {
+    _parentEl = document.querySelector(".country");
+    _errorMessage = "We could not find that country. Please try another one!";
     _renderSpinner() {
         const markup = `
       <div class="spinner">
@@ -2346,8 +2376,8 @@ class countryClient {
           </svg>
         </div>
   `;
-        this.#parentEl.innerHTML = "";
-        this.#parentEl.insertAdjacentHTML("afterbegin", markup);
+        this._parentEl.innerHTML = "";
+        this._parentEl.insertAdjacentHTML("afterbegin", markup);
     }
     _renderError(message = this._errorMessage) {
         const markup = `
@@ -2357,11 +2387,11 @@ class countryClient {
                 <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
               </svg>
             </div>
-            <p>${this.#errorMessage}</p>
+            <p>${this._errorMessage}</p>
           </div>
     `;
-        this.#parentEl.innerHTML = "";
-        this.#parentEl.insertAdjacentHTML("afterbegin", markup);
+        this._parentEl.innerHTML = "";
+        this._parentEl.insertAdjacentHTML("afterbegin", markup);
     }
     _addHandler(handler) {
         [
@@ -2369,29 +2399,23 @@ class countryClient {
             "load"
         ].forEach((ev)=>window.addEventListener(ev, handler));
     }
-    _display(data) {
-        this.#data = data;
-        const markup = this.#generateMarkup();
-        this.#parentEl.innerHTML = "";
-        this.#parentEl.insertAdjacentHTML("afterbegin", markup);
-    }
-     #generateMarkup() {
+    _generateMarkup() {
         return `
      <figure class="country__fig">
-        <img src="${this.#data.img}" alt="Country Flag" class="country__img" />
+        <img src="${this._data.img}" alt="Country Flag" class="country__img" />
         <h1 class="country__title">
-          <span>${this.#data.name}</span>
+          <span>${this._data.name}</span>
         </h1>
       </figure>
       <div class="country__head">
 
         <div class="country__details">
           <div class="country__info">
-            <span class="country__info-text">${this.#data.officialName}</span>
+            <span class="country__info-text">${this._data.officialName}</span>
           </div>
           <div class="country__info">
             <span class="country__info-data country__info-data--people">Continent:</span>
-            <span class="country__info-text">${this.#data.continent}</span>
+            <span class="country__info-text">${this._data.continent}</span>
 
           </div>
         </div>
@@ -2410,7 +2434,7 @@ class countryClient {
 
             <div class="country__desc">Area:</div>
             <div class="country__description">
-              ${this.#data.area} km²
+              ${this._data.area} km²
             </div>
           </li>
 
@@ -2418,21 +2442,21 @@ class countryClient {
 
             <div class="country__desc">Capital:</div>
             <div class="country__description">
-              ${this.#data.capital}
+              ${this._data.capital}
             </div>
           </li>
           <li class="country__fact">
 
             <div class="country__desc">Citizens:</div>
             <div class="country__description">
-              ${this.#data.citizens}
+              ${this._data.citizens}
             </div>
           </li>
           <li class="country__fact">
 
             <div class="country__desc">Population:</div>
             <div class="country__description">
-              ${(this.#data.population / 1000000).toFixed(2)} million
+              ${(this._data.population / 1000000).toFixed(2)} million
             </div>
           </li>
         </ul>
@@ -2443,6 +2467,96 @@ class countryClient {
 }
 exports.default = new countryClient();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../../img/icons.svg":"loVOp"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire750e")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../../img/icons.svg":"loVOp","./Client":"9d9Zb"}],"9d9Zb":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+class Client {
+    _data;
+    _renderSpinner() {
+        const markup = `
+      <div class="spinner">
+          <svg>
+            <use href="${(0, _iconsSvgDefault.default)}#icon-loader"></use>
+          </svg>
+        </div>
+  `;
+        this._parentEl.innerHTML = "";
+        this._parentEl.insertAdjacentHTML("afterbegin", markup);
+    }
+    _renderError(message = this._errorMessage) {
+        const markup = `
+    <div class="error">
+            <div>
+              <svg>
+                <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
+              </svg>
+            </div>
+            <p>${this._errorMessage}</p>
+          </div>
+    `;
+        this._parentEl.innerHTML = "";
+        this._parentEl.insertAdjacentHTML("afterbegin", markup);
+    }
+    _display(data) {
+        this._data = data;
+        const markup = this._generateMarkup();
+        this._parentEl.innerHTML = "";
+        this._parentEl.insertAdjacentHTML("afterbegin", markup);
+    }
+}
+exports.default = Client;
+
+},{"url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"kK9gW":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+class searchClient {
+    #parentEl = document.querySelector(".search");
+    _addHandler(handler) {
+        this.#parentEl.addEventListener("submit", function(e) {
+            e.preventDefault();
+            handler();
+        });
+    }
+    _userSearch() {
+        const search = this.#parentEl.querySelector(".search__field").value;
+        this.#parentEl.querySelector(".search__field").value = "";
+        return search;
+    }
+}
+exports.default = new searchClient();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3VhHB":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _regeneratorRuntime = require("regenerator-runtime");
+var _client = require("./Client");
+var _clientDefault = parcelHelpers.interopDefault(_client);
+class resultClient extends (0, _clientDefault.default) {
+    _parentEl = document.querySelector(".results");
+    _generateMarkup() {
+        return this._data.map(this._generatePreview).join();
+    // console.log(this._data);
+    }
+    _generatePreview(country) {
+        // console.log(country);
+        const id = window.location.hash.slice(1);
+        return `
+    <li class="preview">
+      <a class="preview__link ${country.name.common === id ? "preview__link--active" : ""}" href="#${country.name.common}">
+    <figure class="preview__fig">
+      <img src="${country.flags.png}" alt="Test" />
+    </figure>
+    <div class="preview__data">
+      <h4 class="preview__title">${country.name.common}</h4>
+    </div>
+  </a>
+</li>`;
+    }
+}
+exports.default = new resultClient();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./Client":"9d9Zb","regenerator-runtime":"dXNgZ"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire750e")
 
 //# sourceMappingURL=index.e37f48ea.js.map
