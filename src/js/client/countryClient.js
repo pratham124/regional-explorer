@@ -86,7 +86,7 @@ class countryClient extends Client {
           </li>
           <li class="country__fact">
 
-            <div class="country__desc">Citizens:</div>
+            <div class="country__desc">Residents:</div>
             <div class="country__description">
               ${this._data.citizens}
             </div>

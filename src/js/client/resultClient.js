@@ -3,6 +3,7 @@ import Client from "./Client";
 
 class resultClient extends Client {
   _parentEl = document.querySelector(".results");
+  _errorMessage = "Invalid Region. Please try again!";
 
   _generateMarkup() {
     return this._data.map(this._generatePreview).join();
@@ -10,6 +11,7 @@ class resultClient extends Client {
   }
 
   _generatePreview(country) {
+    // console.log(country);
     // console.log(country);
     const id = window.location.hash.slice(1);
     return `
@@ -22,6 +24,8 @@ class resultClient extends Client {
     </figure>
     <div class="preview__data">
       <h4 class="preview__title">${country.name.common}</h4>
+      <p class="preview__region">${country.region}</p>
+
     </div>
   </a>
 </li>`;

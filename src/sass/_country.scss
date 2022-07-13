@@ -64,9 +64,12 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    position: relative;
 
     button {
-      margin-right: 2rem;
+      position: absolute;
+      top: 10;
+      right: 10;
     }
   }
   &__details {

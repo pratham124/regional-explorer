@@ -545,6 +545,8 @@ var _searchClientJs = require("./client/searchClient.js");
 var _searchClientJsDefault = parcelHelpers.interopDefault(_searchClientJs);
 var _resultClientJs = require("./client/resultClient.js");
 var _resultClientJsDefault = parcelHelpers.interopDefault(_resultClientJs);
+var _paginationClientJs = require("./client/paginationClient.js");
+var _paginationClientJsDefault = parcelHelpers.interopDefault(_paginationClientJs);
 ///////////////////////////////////////
 const countryControl = async function() {
     try {
@@ -552,26 +554,38 @@ const countryControl = async function() {
         if (!id) return;
         (0, _countryClientJsDefault.default)._renderSpinner();
         await _serverJs.createCountry(id);
-        // console.log(server.state.country);
         (0, _countryClientJsDefault.default)._display(_serverJs.state.country);
     } catch (err) {
+        (0, _countryClientJsDefault.default)._renderError();
         console.log(err);
     }
 };
 const searchControl = async function() {
-    const search = (0, _searchClientJsDefault.default)._userSearch();
-    if (!search) return;
-    await _serverJs.searchResults(search);
-    // console.log(server.state.search.results);
-    (0, _resultClientJsDefault.default)._display(_serverJs.state.search.results);
+    try {
+        const search = (0, _searchClientJsDefault.default)._userSearch();
+        if (!search) return;
+        await _serverJs.searchResults(search);
+        // console.log(server.state.search.results);
+        (0, _resultClientJsDefault.default)._display(_serverJs.resultsPage());
+        (0, _paginationClientJsDefault.default)._display(_serverJs.state.search);
+    } catch (err) {
+        (0, _resultClientJsDefault.default)._renderError();
+        console.log(err);
+    }
+};
+const paginationControl = function(nextPage) {
+    // console.log(nextPage);
+    (0, _resultClientJsDefault.default)._display(_serverJs.resultsPage(nextPage));
+    (0, _paginationClientJsDefault.default)._display(_serverJs.state.search);
 };
 const init = function() {
     (0, _countryClientJsDefault.default)._addHandler(countryControl);
     (0, _searchClientJsDefault.default)._addHandler(searchControl);
+    (0, _paginationClientJsDefault.default)._addHandler(paginationControl);
 };
 init();
 
-},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../img/icons.svg":"loVOp","./server.js":"iIJIp","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB"}],"49tUX":[function(require,module,exports) {
+},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../img/icons.svg":"loVOp","./server.js":"iIJIp","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB","./client/paginationClient.js":"64UxA"}],"49tUX":[function(require,module,exports) {
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("../modules/web.clear-immediate");
 require("../modules/web.set-immediate");
@@ -2303,16 +2317,21 @@ exports.getOrigin = getOrigin;
 },{}],"iIJIp":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "COUNTRY_PER_PAGE", ()=>COUNTRY_PER_PAGE);
 parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "createCountry", ()=>createCountry);
 parcelHelpers.export(exports, "searchResults", ()=>searchResults);
+parcelHelpers.export(exports, "resultsPage", ()=>resultsPage);
 var _regeneratorRuntime = require("regenerator-runtime");
 const TIMEOUT_TIME = 500;
+const COUNTRY_PER_PAGE = 9;
 const state = {
     country: {},
     search: {
-        results: []
-    }
+        results: [],
+        page: 1
+    },
+    bookmarks: []
 };
 const timeout = function(s) {
     return new Promise(function(_, reject) {
@@ -2352,10 +2371,17 @@ const searchResults = async function(search) {
         ]);
         const data = await res.json();
         state.search.results = data;
-    // console.log(state.search.results);
+        // console.log(state.search.results);
+        state.search.page = 1;
     } catch (err) {
         throw err;
     }
+};
+const resultsPage = function(page = state.search.page) {
+    state.search.page = page;
+    const firstCountry = COUNTRY_PER_PAGE * (page - 1);
+    const lastCountry = COUNTRY_PER_PAGE * page;
+    return state.search.results.slice(firstCountry, lastCountry);
 }; // searchResults("europe");
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","regenerator-runtime":"dXNgZ"}],"amW5p":[function(require,module,exports) {
@@ -2447,7 +2473,7 @@ class countryClient extends (0, _clientDefault.default) {
           </li>
           <li class="country__fact">
 
-            <div class="country__desc">Citizens:</div>
+            <div class="country__desc">Residents:</div>
             <div class="country__description">
               ${this._data.citizens}
             </div>
@@ -2535,11 +2561,13 @@ var _client = require("./Client");
 var _clientDefault = parcelHelpers.interopDefault(_client);
 class resultClient extends (0, _clientDefault.default) {
     _parentEl = document.querySelector(".results");
+    _errorMessage = "Invalid Region. Please try again!";
     _generateMarkup() {
         return this._data.map(this._generatePreview).join();
     // console.log(this._data);
     }
     _generatePreview(country) {
+        // console.log(country);
         // console.log(country);
         const id = window.location.hash.slice(1);
         return `
@@ -2550,6 +2578,8 @@ class resultClient extends (0, _clientDefault.default) {
     </figure>
     <div class="preview__data">
       <h4 class="preview__title">${country.name.common}</h4>
+      <p class="preview__region">${country.region}</p>
+
     </div>
   </a>
 </li>`;
@@ -2557,6 +2587,64 @@ class resultClient extends (0, _clientDefault.default) {
 }
 exports.default = new resultClient();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./Client":"9d9Zb","regenerator-runtime":"dXNgZ"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire750e")
+},{"regenerator-runtime":"dXNgZ","./Client":"9d9Zb","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"64UxA":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _client = require("./Client");
+var _clientDefault = parcelHelpers.interopDefault(_client);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+var _server = require("../server");
+class paginationClient extends (0, _clientDefault.default) {
+    _parentEl = document.querySelector(".pagination");
+    _addHandler(handler) {
+        this._parentEl.addEventListener("click", function(e) {
+            const btn = e.target.closest(".btn--inline");
+            if (!btn) return;
+            const nextPage = +btn.dataset.next;
+            // console.log(nextPage);
+            handler(nextPage);
+        });
+    }
+    _generateMarkup() {
+        const pages = Math.ceil(this._data.results.length / (0, _server.COUNTRY_PER_PAGE));
+        const curPage = this._data.page;
+        // console.log(pages);
+        // console.log(this._data);
+        if (curPage === 1 && pages > 1) return `
+          <button class="btn--inline pagination__btn--next"  data-next="${curPage + 1}">
+            <svg class="search__icon">
+              <use href="${0, _iconsSvgDefault.default}#icon-arrow-right"></use>
+            </svg>
+            <span>${curPage + 1}</span>
+          </button>`;
+        if (curPage === pages && pages > 1) return `
+      <button class="btn--inline pagination__btn--next" data-next = "${curPage - 1}">
+        <svg class="search__icon">
+          <use href="${0, _iconsSvgDefault.default}#icon-arrow-left"></use>
+        </svg>
+        <span>${curPage - 1}</span>
+      </button>
+      `;
+        if (curPage < pages) return `
+      <button class="btn--inline pagination__btn--prev" data-next = "${curPage - 1}">
+            <svg class="search__icon">
+              <use href="${0, _iconsSvgDefault.default}#icon-arrow-left"></use>
+            </svg>
+            <span>${curPage - 1}</span>
+          </button>
+          <button class="btn--inline pagination__btn--next" data-next = " ${curPage + 1}">
+            <span>${curPage + 1}</span>
+            <svg class="search__icon">
+              <use href="${0, _iconsSvgDefault.default}.svg#icon-arrow-right"></use>
+            </svg>
+          </button>
+      `;
+        return "";
+    }
+}
+exports.default = new paginationClient();
+
+},{"./Client":"9d9Zb","url:../../img/icons.svg":"loVOp","../server":"iIJIp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire750e")
 
 //# sourceMappingURL=index.e37f48ea.js.map
