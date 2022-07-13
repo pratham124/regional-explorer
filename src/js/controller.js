@@ -7,6 +7,7 @@ import countryClient from "./client/countryClient.js";
 import searchClient from "./client/searchClient.js";
 import resultClient from "./client/resultClient.js";
 import paginationClient from "./client/paginationClient.js";
+import homePage from "./client/homePage.js";
 ///////////////////////////////////////
 
 const countryControl = async function () {
@@ -43,9 +44,16 @@ const paginationControl = function (nextPage) {
   paginationClient._display(server.state.search);
 };
 
+const homeControl = function () {
+  resultClient._homePage();
+  countryClient._homePage();
+  paginationClient._homePage();
+};
+
 const init = function () {
   countryClient._addHandler(countryControl);
   searchClient._addHandler(searchControl);
   paginationClient._addHandler(paginationControl);
+  homePage._addHandler(homeControl);
 };
 init();

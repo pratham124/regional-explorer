@@ -38,6 +38,21 @@ class countryClient extends Client {
     );
   }
 
+  _homePage() {
+    const markup = `
+    <div class="message">
+        <div>
+          <svg>
+            <use href="${icons}#icon-smile"></use>
+          </svg>
+        </div>
+        <p>Start by searching for a region!!</p>
+      </div>
+    `;
+    this._parentEl.innerHTML = "";
+    this._parentEl.insertAdjacentHTML("afterbegin", markup);
+  }
+
   _generateMarkup() {
     return `
      <figure class="country__fig">

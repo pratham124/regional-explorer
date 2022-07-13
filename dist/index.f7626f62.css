@@ -324,6 +324,18 @@ body {
   font-weight: 600;
 }
 
+.home {
+  height: 3rem;
+  width: 3rem;
+  cursor: pointer;
+  filter: invert(39%) sepia(71%) saturate(441%) hue-rotate(80deg) brightness(98%) contrast(92%);
+  transition: all .3s;
+}
+
+.home:hover {
+  filter: invert(27%) sepia(21%) saturate(970%) hue-rotate(90deg) brightness(95%) contrast(98%);
+}
+
 .nav {
   align-self: stretch;
   margin-right: 2.5rem;

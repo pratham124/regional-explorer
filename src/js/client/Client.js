@@ -3,6 +3,9 @@ import icons from "url:../../img/icons.svg";
 export default class Client {
   _data;
 
+  _homePage() {
+    this._parentEl.innerHTML = "";
+  }
   _renderSpinner() {
     const markup = `
       <div class="spinner">

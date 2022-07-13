@@ -547,6 +547,8 @@ var _resultClientJs = require("./client/resultClient.js");
 var _resultClientJsDefault = parcelHelpers.interopDefault(_resultClientJs);
 var _paginationClientJs = require("./client/paginationClient.js");
 var _paginationClientJsDefault = parcelHelpers.interopDefault(_paginationClientJs);
+var _homePageJs = require("./client/homePage.js");
+var _homePageJsDefault = parcelHelpers.interopDefault(_homePageJs);
 ///////////////////////////////////////
 const countryControl = async function() {
     try {
@@ -578,14 +580,20 @@ const paginationControl = function(nextPage) {
     (0, _resultClientJsDefault.default)._display(_serverJs.resultsPage(nextPage));
     (0, _paginationClientJsDefault.default)._display(_serverJs.state.search);
 };
+const homeControl = function() {
+    (0, _resultClientJsDefault.default)._homePage();
+    (0, _countryClientJsDefault.default)._homePage();
+    (0, _paginationClientJsDefault.default)._homePage();
+};
 const init = function() {
     (0, _countryClientJsDefault.default)._addHandler(countryControl);
     (0, _searchClientJsDefault.default)._addHandler(searchControl);
     (0, _paginationClientJsDefault.default)._addHandler(paginationControl);
+    (0, _homePageJsDefault.default)._addHandler(homeControl);
 };
 init();
 
-},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../img/icons.svg":"loVOp","./server.js":"iIJIp","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB","./client/paginationClient.js":"64UxA"}],"49tUX":[function(require,module,exports) {
+},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","url:../img/icons.svg":"loVOp","./server.js":"iIJIp","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB","./client/paginationClient.js":"64UxA","./client/homePage.js":"50n5D"}],"49tUX":[function(require,module,exports) {
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("../modules/web.clear-immediate");
 require("../modules/web.set-immediate");
@@ -2425,6 +2433,20 @@ class countryClient extends (0, _clientDefault.default) {
             "load"
         ].forEach((ev)=>window.addEventListener(ev, handler));
     }
+    _homePage() {
+        const markup = `
+    <div class="message">
+        <div>
+          <svg>
+            <use href="${(0, _iconsSvgDefault.default)}#icon-smile"></use>
+          </svg>
+        </div>
+        <p>Start by searching for a region!!</p>
+      </div>
+    `;
+        this._parentEl.innerHTML = "";
+        this._parentEl.insertAdjacentHTML("afterbegin", markup);
+    }
     _generateMarkup() {
         return `
      <figure class="country__fig">
@@ -2500,6 +2522,9 @@ var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
 class Client {
     _data;
+    _homePage() {
+        this._parentEl.innerHTML = "";
+    }
     _renderSpinner() {
         const markup = `
       <div class="spinner">
@@ -2645,6 +2670,19 @@ class paginationClient extends (0, _clientDefault.default) {
 }
 exports.default = new paginationClient();
 
-},{"./Client":"9d9Zb","url:../../img/icons.svg":"loVOp","../server":"iIJIp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire750e")
+},{"./Client":"9d9Zb","url:../../img/icons.svg":"loVOp","../server":"iIJIp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"50n5D":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+class homePage {
+    #parentEl = document.querySelector(".home-page");
+    _addHandler(handler) {
+        this.#parentEl.addEventListener("click", function(e) {
+            handler();
+        });
+    }
+}
+exports.default = new homePage();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire750e")
 
 //# sourceMappingURL=index.e37f48ea.js.map
