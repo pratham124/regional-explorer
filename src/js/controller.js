@@ -1,7 +1,6 @@
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import { async } from "regenerator-runtime";
-import icons from "url:../img/icons.svg";
 import * as server from "./server.js";
 import countryClient from "./client/countryClient.js";
 import searchClient from "./client/searchClient.js";
@@ -18,6 +17,7 @@ const countryControl = async function () {
     countryClient._renderSpinner();
     await server.createCountry(id);
     countryClient._display(server.state.country);
+    countryClient._renderMap(server.state.country);
   } catch (err) {
     countryClient._renderError();
     console.log(err);

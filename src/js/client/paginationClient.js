@@ -36,7 +36,7 @@ class paginationClient extends Client {
 
     if (curPage === pages && pages > 1) {
       return `
-      <button class="btn--inline pagination__btn--next" data-next = "${
+      <button class="btn--inline pagination__btn--prev" data-next = "${
         curPage - 1
       }">
         <svg class="search__icon">

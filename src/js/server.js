@@ -28,6 +28,7 @@ export const createCountry = async function (id) {
 
     const res = await Promise.race([fetchPromise, timeout(TIMEOUT_TIME)]);
     const [data] = await res.json();
+    // console.log(data);
     state.country = {
       img: data.flags.png,
       name: data.name.common,
@@ -37,6 +38,8 @@ export const createCountry = async function (id) {
       capital: data.capital,
       citizens: data.demonyms.eng.m,
       population: data.population,
+      lat: data.latlng[0],
+      lng: data.latlng[1],
     };
   } catch (err) {
     throw err;

@@ -1,9 +1,37 @@
 import icons from "url:../../img/icons.svg";
 import Client from "./Client";
+import { Loader } from "@googlemaps/js-api-loader";
+
+const googleMapsApi = `AIzaSyBFNlQZRDsTZfnX-yqDb_33b0-B4MsxXqc`;
 
 class countryClient extends Client {
   _parentEl = document.querySelector(".country");
   _errorMessage = "We could not find that country. Please try another one!";
+
+  _renderMap(data) {
+    // console.log(data.lat);
+    const loader = new Loader({
+      apiKey: googleMapsApi,
+      version: "weekly",
+      libraries: ["places"],
+    });
+
+    const mapOptions = {
+      center: {
+        lat: data.lat,
+        lng: data.lng,
+      },
+      zoom: 6,
+    };
+
+    loader.loadCallback((e) => {
+      if (e) {
+        console.log(e);
+      } else {
+        new google.maps.Map(document.getElementById("map"), mapOptions);
+      }
+    });
+  }
 
   _renderSpinner() {
     const markup = `
@@ -25,7 +53,7 @@ class countryClient extends Client {
                 <use href="${icons}#icon-alert-triangle"></use>
               </svg>
             </div>
-            <p>${this._errorMessage}</p>
+            <p>${message}</p>
           </div>
     `;
     this._parentEl.innerHTML = "";
@@ -81,7 +109,7 @@ class countryClient extends Client {
       </div>
 
       <div class="country__info-section">
-        <div class="country__map"></div>
+        <div id="map" class="country__map"></div>
         <h2 class="heading--2">info</h2>
         <ul class="country__info-list">
           <li class="country__fact">
