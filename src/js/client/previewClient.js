@@ -5,12 +5,9 @@ export default class previewClient extends Client {
   _generateMarkup() {
     console.log(this._data);
     return this._data.map(this._generatePreview).join();
-    // console.log(this._data);
   }
 
   _generatePreview(country) {
-    // console.log(country);
-    // console.log(country);
     const id = window.location.hash.slice(1);
     return `
     <li class="preview">

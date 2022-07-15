@@ -12,6 +12,7 @@ export const state = {
   bookmarks: [],
 };
 
+// Used to create a promise rejection error incase fetch request for country and region takes longer than 5s
 const timeout = function (s) {
   return new Promise(function (_, reject) {
     setTimeout(function () {
@@ -20,16 +21,19 @@ const timeout = function (s) {
   });
 };
 
-export const createCountry = async function (id) {
+// Creates object containing country info
+export const createCountry = async function (country) {
   try {
+    // Gets data from api
     const fetchPromise = await fetch(
-      `https://restcountries.com/v3.1/name/${id}`
+      `https://restcountries.com/v3.1/name/${country}`
     );
 
+    // race is used to get whichever parameter executes first
     const res = await Promise.race([fetchPromise, timeout(TIMEOUT_TIME)]);
     const [data] = await res.json();
 
-    // console.log(data);
+    // create object
     state.country = {
       img: data.flags.png,
       name: data.name.common,
@@ -44,7 +48,8 @@ export const createCountry = async function (id) {
       region: data.region,
     };
 
-    if (state.bookmarks.some((bookmark) => bookmark.name === id))
+    // If the country
+    if (state.bookmarks.some((bookmark) => bookmark.name === country))
       state.country.bookmarked = true;
     else false;
   } catch (err) {
@@ -74,7 +79,13 @@ export const searchResults = async function (search) {
   }
 };
 
+/**
+ *
+ * @param {number} page - current page number
+ * @returns {array} array of the countries to display
+ */
 export const resultsPage = function (page = state.search.page) {
+  // Updates page num in the object
   state.search.page = page;
   const firstCountry = COUNTRY_PER_PAGE * (page - 1);
   const lastCountry = COUNTRY_PER_PAGE * page;
@@ -82,11 +93,12 @@ export const resultsPage = function (page = state.search.page) {
   return state.search.results.slice(firstCountry, lastCountry);
 };
 
-// searchResults("europe");
+// Updates local storage
 const updateBookmarks = function () {
   localStorage.setItem("bookmark", JSON.stringify(state.bookmarks));
 };
 
+// Add bookmark to local storage and bookmarks array
 export const addBookmark = function (country) {
   state.bookmarks.push(country);
   if (country.name === state.country.name) state.country.bookmarked = true;
@@ -94,21 +106,20 @@ export const addBookmark = function (country) {
   updateBookmarks();
 };
 
+// Delete bookmark from local storage and bookmarks array
 export const deleteBookmark = function (name) {
-  // Delete bookmark
   const index = state.bookmarks.findIndex((el) => el.name === name);
   state.bookmarks.splice(index, 1);
-
   if (name === state.country.name) state.country.bookmarked = false;
 
   updateBookmarks();
 };
 
+// Gets the bookmarks from local storage
 const init = function () {
   const storage = localStorage.getItem("bookmark");
   if (storage) state.bookmarks = JSON.parse(storage);
 };
-
 init();
 
 // const clearBookmarks = function () {

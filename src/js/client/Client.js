@@ -27,7 +27,7 @@ export default class Client {
                 <use href="${icons}#icon-alert-triangle"></use>
               </svg>
             </div>
-            <p>${this._errorMessage}</p>
+            <p>${message}</p>
           </div>
     `;
     this._parentEl.innerHTML = "";

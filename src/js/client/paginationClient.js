@@ -11,7 +11,7 @@ class paginationClient extends Client {
 
       if (!btn) return;
       const nextPage = +btn.dataset.next;
-      // console.log(nextPage);
+
       handler(nextPage);
     });
   }
@@ -19,8 +19,6 @@ class paginationClient extends Client {
   _generateMarkup() {
     const pages = Math.ceil(this._data.results.length / COUNTRY_PER_PAGE);
     const curPage = this._data.page;
-    // console.log(pages);
-    // console.log(this._data);
 
     if (curPage === 1 && pages > 1) {
       return `
