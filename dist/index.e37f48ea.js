@@ -547,6 +547,8 @@ var _paginationClientJs = require("./client/paginationClient.js");
 var _paginationClientJsDefault = parcelHelpers.interopDefault(_paginationClientJs);
 var _homePageJs = require("./client/homePage.js");
 var _homePageJsDefault = parcelHelpers.interopDefault(_homePageJs);
+var _bookmarksClientJs = require("./client/bookmarksClient.js");
+var _bookmarksClientJsDefault = parcelHelpers.interopDefault(_bookmarksClientJs);
 ///////////////////////////////////////
 const countryControl = async function() {
     try {
@@ -554,6 +556,8 @@ const countryControl = async function() {
         if (!id) return;
         (0, _countryClientJsDefault.default)._renderSpinner();
         await _serverJs.createCountry(id);
+        (0, _resultClientJsDefault.default)._display(_serverJs.resultsPage());
+        (0, _bookmarksClientJsDefault.default)._display(_serverJs.state.bookmarks);
         (0, _countryClientJsDefault.default)._display(_serverJs.state.country);
         (0, _countryClientJsDefault.default)._renderMap(_serverJs.state.country);
     } catch (err) {
@@ -584,15 +588,33 @@ const homeControl = function() {
     (0, _countryClientJsDefault.default)._homePage();
     (0, _paginationClientJsDefault.default)._homePage();
 };
+const bookmarkControl = function() {
+    (0, _bookmarksClientJsDefault.default)._display(_serverJs.state.bookmarks);
+};
+const bookmarksButtonControl = function() {
+    if (!_serverJs.state.country.bookmarked) _serverJs.addBookmark(_serverJs.state.country);
+    else _serverJs.deleteBookmark(_serverJs.state.country.name);
+    // console.log(server.state.country);
+    // Update country view
+    (0, _countryClientJsDefault.default)._display(_serverJs.state.country);
+    (0, _countryClientJsDefault.default)._renderMap(_serverJs.state.country);
+    console.log(_serverJs.state.bookmarks);
+    if (_serverJs.state.bookmarks === undefined || _serverJs.state.bookmarks.length == 0) {
+        (0, _bookmarksClientJsDefault.default)._homePage();
+        (0, _bookmarksClientJsDefault.default)._bookmarkReset();
+    } else (0, _bookmarksClientJsDefault.default)._display(_serverJs.state.bookmarks);
+};
 const init = function() {
+    (0, _bookmarksClientJsDefault.default)._addHandler(bookmarkControl);
     (0, _countryClientJsDefault.default)._addHandler(countryControl);
     (0, _searchClientJsDefault.default)._addHandler(searchControl);
     (0, _paginationClientJsDefault.default)._addHandler(paginationControl);
     (0, _homePageJsDefault.default)._addHandler(homeControl);
+    (0, _countryClientJsDefault.default)._addHandlerBookmark(bookmarksButtonControl);
 };
 init();
 
-},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./server.js":"iIJIp","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB","./client/paginationClient.js":"64UxA","./client/homePage.js":"50n5D"}],"49tUX":[function(require,module,exports) {
+},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./server.js":"iIJIp","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB","./client/paginationClient.js":"64UxA","./client/homePage.js":"50n5D","./client/bookmarksClient.js":"lV9oS"}],"49tUX":[function(require,module,exports) {
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("../modules/web.clear-immediate");
 require("../modules/web.set-immediate");
@@ -2292,6 +2314,8 @@ parcelHelpers.export(exports, "state", ()=>state);
 parcelHelpers.export(exports, "createCountry", ()=>createCountry);
 parcelHelpers.export(exports, "searchResults", ()=>searchResults);
 parcelHelpers.export(exports, "resultsPage", ()=>resultsPage);
+parcelHelpers.export(exports, "addBookmark", ()=>addBookmark);
+parcelHelpers.export(exports, "deleteBookmark", ()=>deleteBookmark);
 var _regeneratorRuntime = require("regenerator-runtime");
 const TIMEOUT_TIME = 500;
 const COUNTRY_PER_PAGE = 9;
@@ -2329,8 +2353,10 @@ const createCountry = async function(id) {
             citizens: data.demonyms.eng.m,
             population: data.population,
             lat: data.latlng[0],
-            lng: data.latlng[1]
+            lng: data.latlng[1],
+            region: data.region
         };
+        if (state.bookmarks.some((bookmark)=>bookmark.name === id)) state.country.bookmarked = true;
     } catch (err) {
         throw err;
     }
@@ -2343,7 +2369,14 @@ const searchResults = async function(search) {
             timeout(TIMEOUT_TIME)
         ]);
         const data = await res.json();
-        state.search.results = data;
+        // console.log(data);
+        state.search.results = data.map((country)=>{
+            return {
+                name: country.name.common,
+                img: country.flags.png,
+                region: country.region
+            };
+        });
         // console.log(state.search.results);
         state.search.page = 1;
     } catch (err) {
@@ -2355,7 +2388,31 @@ const resultsPage = function(page = state.search.page) {
     const firstCountry = COUNTRY_PER_PAGE * (page - 1);
     const lastCountry = COUNTRY_PER_PAGE * page;
     return state.search.results.slice(firstCountry, lastCountry);
-}; // searchResults("europe");
+};
+// searchResults("europe");
+const updateBookmarks = function() {
+    localStorage.setItem("bookmark", JSON.stringify(state.bookmarks));
+};
+const addBookmark = function(country) {
+    state.bookmarks.push(country);
+    if (country.name === state.country.name) state.country.bookmarked = true;
+    updateBookmarks();
+};
+const deleteBookmark = function(name) {
+    // Delete bookmark
+    const index = state.bookmarks.findIndex((el)=>el.name === name);
+    state.bookmarks.splice(index, 1);
+    if (name === state.country.name) state.country.bookmarked = false;
+    updateBookmarks();
+};
+const init = function() {
+    const storage = localStorage.getItem("bookmark");
+    if (storage) state.bookmarks = JSON.parse(storage);
+};
+init(); // const clearBookmarks = function () {
+ //   localStorage.clear("bookmark");
+ // };
+ // clearBookmarks();
 
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","regenerator-runtime":"dXNgZ"}],"amW5p":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -2421,6 +2478,13 @@ class countryClient extends (0, _clientDefault.default) {
             "load"
         ].forEach((ev)=>window.addEventListener(ev, handler));
     }
+    _addHandlerBookmark(handler) {
+        this._parentEl.addEventListener("click", function(e) {
+            const btn = e.target.closest(".btn--bookmark");
+            if (!btn) return;
+            handler();
+        });
+    }
     _homePage() {
         const markup = `
     <div class="message">
@@ -2455,9 +2519,9 @@ class countryClient extends (0, _clientDefault.default) {
 
           </div>
         </div>
-        <button class="btn--round">
+        <button class="btn--round btn--bookmark">
           <svg class="">
-            <use href="${0, _iconsSvgDefault.default}#icon-bookmark"></use>
+            <use href="${0, _iconsSvgDefault.default}#icon-bookmark${this._data.bookmarked ? "-fill" : ""}"></use>
           </svg>
         </button>
       </div>
@@ -2576,6 +2640,7 @@ class Client {
         this._parentEl.insertAdjacentHTML("afterbegin", markup);
     }
     _display(data) {
+        if (!data || Array.isArray(data) && data.length === 0) return;
         this._data = data;
         const markup = this._generateMarkup();
         this._parentEl.innerHTML = "";
@@ -2862,13 +2927,23 @@ exports.default = new searchClient();
 },{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"3VhHB":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
+var _previewClient = require("./previewClient");
+var _previewClientDefault = parcelHelpers.interopDefault(_previewClient);
+class resultClient extends (0, _previewClientDefault.default) {
+    _parentEl = document.querySelector(".results");
+    _errorMessage = "Invalid Region. Please try again!";
+}
+exports.default = new resultClient();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./previewClient":"1sYiv"}],"1sYiv":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
 var _regeneratorRuntime = require("regenerator-runtime");
 var _client = require("./Client");
 var _clientDefault = parcelHelpers.interopDefault(_client);
-class resultClient extends (0, _clientDefault.default) {
-    _parentEl = document.querySelector(".results");
-    _errorMessage = "Invalid Region. Please try again!";
+class previewClient extends (0, _clientDefault.default) {
     _generateMarkup() {
+        console.log(this._data);
         return this._data.map(this._generatePreview).join();
     // console.log(this._data);
     }
@@ -2878,12 +2953,12 @@ class resultClient extends (0, _clientDefault.default) {
         const id = window.location.hash.slice(1);
         return `
     <li class="preview">
-      <a class="preview__link ${country.name.common === id ? "preview__link--active" : ""}" href="#${country.name.common}">
+      <a class="preview__link ${country.name === id ? "preview__link--active" : ""}" href="#${country.name}">
     <figure class="preview__fig">
-      <img src="${country.flags.png}" alt="Test" />
+      <img src="${country.img}" alt="Test" />
     </figure>
     <div class="preview__data">
-      <h4 class="preview__title">${country.name.common}</h4>
+      <h4 class="preview__title">${country.name}</h4>
       <p class="preview__region">${country.region}</p>
 
     </div>
@@ -2891,7 +2966,7 @@ class resultClient extends (0, _clientDefault.default) {
 </li>`;
     }
 }
-exports.default = new resultClient();
+exports.default = previewClient;
 
 },{"regenerator-runtime":"dXNgZ","./Client":"9d9Zb","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"64UxA":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
@@ -2964,6 +3039,36 @@ class homePage {
 }
 exports.default = new homePage();
 
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire750e")
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"lV9oS":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+var _previewClient = require("./previewClient");
+var _previewClientDefault = parcelHelpers.interopDefault(_previewClient);
+var _iconsSvg = require("url:../../img/icons.svg");
+var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
+class bookmarksClient extends (0, _previewClientDefault.default) {
+    _parentEl = document.querySelector(".bookmarks__list");
+    _errorMessage = "No bookmarks yet. Find a country to bookmark!";
+    _addHandler(handler) {
+        window.addEventListener("load", handler);
+    }
+    _bookmarkReset() {
+        const markup = `
+    <div class="message">
+      <div>
+        <svg>
+          <use href="${(0, _iconsSvgDefault.default)}#icon-smile"></use>
+        </svg>
+      </div>
+      <p>
+        No bookmarks yet. Find a country and bookmark it :)
+      </p>
+    </div>`;
+        this._parentEl.insertAdjacentHTML("afterbegin", markup);
+    }
+}
+exports.default = new bookmarksClient();
+
+},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./previewClient":"1sYiv","url:../../img/icons.svg":"loVOp"}]},["fA0o9","aenu9"], "aenu9", "parcelRequire750e")
 
 //# sourceMappingURL=index.e37f48ea.js.map

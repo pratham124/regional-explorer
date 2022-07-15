@@ -7,15 +7,20 @@ import searchClient from "./client/searchClient.js";
 import resultClient from "./client/resultClient.js";
 import paginationClient from "./client/paginationClient.js";
 import homePage from "./client/homePage.js";
+import bookmarksClient from "./client/bookmarksClient.js";
 ///////////////////////////////////////
 
 const countryControl = async function () {
   try {
     const id = window.location.hash.slice(1);
     if (!id) return;
-
     countryClient._renderSpinner();
+
     await server.createCountry(id);
+
+    resultClient._display(server.resultsPage());
+    bookmarksClient._display(server.state.bookmarks);
+
     countryClient._display(server.state.country);
     countryClient._renderMap(server.state.country);
   } catch (err) {
@@ -50,10 +55,38 @@ const homeControl = function () {
   paginationClient._homePage();
 };
 
+const bookmarkControl = function () {
+  bookmarksClient._display(server.state.bookmarks);
+};
+
+const bookmarksButtonControl = function () {
+  if (!server.state.country.bookmarked)
+    server.addBookmark(server.state.country);
+  else server.deleteBookmark(server.state.country.name);
+  // console.log(server.state.country);
+  // Update country view
+  countryClient._display(server.state.country);
+  countryClient._renderMap(server.state.country);
+
+  console.log(server.state.bookmarks);
+
+  if (
+    server.state.bookmarks === undefined ||
+    server.state.bookmarks.length == 0
+  ) {
+    bookmarksClient._homePage();
+    bookmarksClient._bookmarkReset();
+  } else {
+    bookmarksClient._display(server.state.bookmarks);
+  }
+};
+
 const init = function () {
+  bookmarksClient._addHandler(bookmarkControl);
   countryClient._addHandler(countryControl);
   searchClient._addHandler(searchControl);
   paginationClient._addHandler(paginationControl);
   homePage._addHandler(homeControl);
+  countryClient._addHandlerBookmark(bookmarksButtonControl);
 };
 init();

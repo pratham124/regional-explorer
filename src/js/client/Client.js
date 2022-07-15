@@ -6,6 +6,7 @@ export default class Client {
   _homePage() {
     this._parentEl.innerHTML = "";
   }
+
   _renderSpinner() {
     const markup = `
       <div class="spinner">
@@ -34,6 +35,7 @@ export default class Client {
   }
 
   _display(data) {
+    if (!data || (Array.isArray(data) && data.length === 0)) return;
     this._data = data;
     const markup = this._generateMarkup();
     this._parentEl.innerHTML = "";
