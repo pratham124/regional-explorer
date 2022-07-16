@@ -14,7 +14,10 @@ import bookmarksClient from "./client/bookmarksClient.js";
 const countryControl = async function () {
   try {
     // Gets the value after # from web url
-    const country = window.location.hash.slice(1);
+    let country = window.location.hash.slice(1);
+    if (country.includes("%20")) {
+      country = country.split("%20").join(" ");
+    }
     // Guard clause incase theres no country
     if (!country) return;
     // Before the country loads a spinner transformation is displayed

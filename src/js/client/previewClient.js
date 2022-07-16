@@ -7,8 +7,10 @@ export default class previewClient extends Client {
   }
 
   _generatePreview(country) {
-    const id = window.location.hash.slice(1);
-    console.log(id);
+    let id = window.location.hash.slice(1);
+    if (id.includes("%20")) {
+      id = id.split("%20").join(" ");
+    }
     return `
     <li class="preview">
       <a class="preview__link ${

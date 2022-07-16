@@ -554,7 +554,8 @@ var _bookmarksClientJsDefault = parcelHelpers.interopDefault(_bookmarksClientJs)
 const countryControl = async function() {
     try {
         // Gets the value after # from web url
-        const country = window.location.hash.slice(1);
+        let country = window.location.hash.slice(1);
+        if (country.includes("%20")) country = country.split("%20").join(" ");
         // Guard clause incase theres no country
         if (!country) return;
         // Before the country loads a spinner transformation is displayed
@@ -2861,8 +2862,8 @@ class previewClient extends (0, _clientDefault.default) {
         return this._data.map(this._generatePreview).join();
     }
     _generatePreview(country) {
-        const id = window.location.hash.slice(1);
-        console.log(id);
+        let id = window.location.hash.slice(1);
+        if (id.includes("%20")) id = id.split("%20").join(" ");
         return `
     <li class="preview">
       <a class="preview__link ${country.name === id ? "preview__link--active" : ""}" href="#${country.name}">
@@ -3043,10 +3044,11 @@ const init = function() {
     const storage = localStorage.getItem("bookmark");
     if (storage) state.bookmarks = JSON.parse(storage);
 };
-init(); // const clearBookmarks = function () {
- //   localStorage.clear("bookmark");
- // };
- // clearBookmarks();
+init();
+const clearBookmarks = function() {
+    localStorage.clear("bookmark");
+};
+clearBookmarks();
 
 },{"regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"50n5D":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
