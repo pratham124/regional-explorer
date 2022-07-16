@@ -508,6 +508,12 @@ body {
   box-shadow: 0 .8rem 5rem 2rem #2333291a;
 }
 
+@media only screen and (max-width: 25em) {
+  .bookmarks {
+    right: -12rem;
+  }
+}
+
 .bookmarks__list {
   max-height: 100.7rem;
   list-style: none;
