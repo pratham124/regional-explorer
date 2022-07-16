@@ -1,7 +1,7 @@
 import "core-js/stable";
 import "regenerator-runtime/runtime";
 import { async } from "regenerator-runtime";
-import * as server from "./server.js";
+import * as server from "./server/server";
 import countryClient from "./client/countryClient.js";
 import searchClient from "./client/searchClient.js";
 import resultClient from "./client/resultClient.js";
@@ -75,6 +75,11 @@ const homeControl = function () {
   resultClient._homePage();
   countryClient._homePage();
   paginationClient._homePage();
+
+  // Updates bookmark after hashchange so that active state is removed
+  window.addEventListener("hashchange", function () {
+    bookmarksClient._display(server.state.bookmarks);
+  });
 };
 
 // Displays bookmarks

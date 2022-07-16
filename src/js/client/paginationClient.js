@@ -1,6 +1,6 @@
 import Client from "./Client";
 import icons from "url:../../img/icons.svg";
-import { COUNTRY_PER_PAGE } from "../server";
+import { COUNTRY_PER_PAGE } from "../server/server";
 
 class paginationClient extends Client {
   _parentEl = document.querySelector(".pagination");

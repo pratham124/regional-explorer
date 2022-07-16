@@ -536,7 +536,7 @@ var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 var _webImmediateJs = require("core-js/modules/web.immediate.js");
 var _runtime = require("regenerator-runtime/runtime");
 var _regeneratorRuntime = require("regenerator-runtime");
-var _serverJs = require("./server.js");
+var _server = require("./server/server");
 var _countryClientJs = require("./client/countryClient.js");
 var _countryClientJsDefault = parcelHelpers.interopDefault(_countryClientJs);
 var _searchClientJs = require("./client/searchClient.js");
@@ -550,60 +550,83 @@ var _homePageJsDefault = parcelHelpers.interopDefault(_homePageJs);
 var _bookmarksClientJs = require("./client/bookmarksClient.js");
 var _bookmarksClientJsDefault = parcelHelpers.interopDefault(_bookmarksClientJs);
 ///////////////////////////////////////
+// Displays the country of user's choice
 const countryControl = async function() {
     try {
-        const id = window.location.hash.slice(1);
-        if (!id) return;
+        // Gets the value after # from web url
+        const country = window.location.hash.slice(1);
+        // Guard clause incase theres no country
+        if (!country) return;
+        // Before the country loads a spinner transformation is displayed
         (0, _countryClientJsDefault.default)._renderSpinner();
-        await _serverJs.createCountry(id);
-        (0, _resultClientJsDefault.default)._display(_serverJs.resultsPage());
-        (0, _bookmarksClientJsDefault.default)._display(_serverJs.state.bookmarks);
-        (0, _countryClientJsDefault.default)._display(_serverJs.state.country);
-        (0, _countryClientJsDefault.default)._renderMap(_serverJs.state.country);
+        // Waiting for the fetch request about country info to load
+        await _server.createCountry(country);
+        // Updates the search section so that the active state is applied to current country
+        (0, _resultClientJsDefault.default)._display(_server.resultsPage());
+        // Updates the bookmark section
+        (0, _bookmarksClientJsDefault.default)._display(_server.state.bookmarks);
+        // Displays the country and a map based on the countrys coordinates using google maps api
+        (0, _countryClientJsDefault.default)._display(_server.state.country);
+        (0, _countryClientJsDefault.default)._renderMap(_server.state.country);
     } catch (err) {
+        // Displays error message if promise was unsucessful
         (0, _countryClientJsDefault.default)._renderError();
         console.log(err);
     }
 };
+// Displays pagination and all the countries in a region
 const searchControl = async function() {
     try {
+        // Gets the value of what the user entered on search bar
         const search = (0, _searchClientJsDefault.default)._userSearch();
+        // Guard clause incase user entered nothing
         if (!search) return;
-        await _serverJs.searchResults(search);
-        // console.log(server.state.search.results);
-        (0, _resultClientJsDefault.default)._display(_serverJs.resultsPage());
-        (0, _paginationClientJsDefault.default)._display(_serverJs.state.search);
+        // waiting for fetch request about region info to load
+        await _server.searchResults(search);
+        // Display the search results and pagination
+        (0, _resultClientJsDefault.default)._display(_server.resultsPage());
+        (0, _paginationClientJsDefault.default)._display(_server.state.search);
     } catch (err) {
+        // User enters invalid region
         (0, _resultClientJsDefault.default)._renderError();
         console.log(err);
     }
 };
-const paginationControl = function(nextPage) {
-    // console.log(nextPage);
-    (0, _resultClientJsDefault.default)._display(_serverJs.resultsPage(nextPage));
-    (0, _paginationClientJsDefault.default)._display(_serverJs.state.search);
+/**
+ * Displays pagination
+ * @param {number} nextPage - used to display the next page
+ */ const paginationControl = function(nextPage) {
+    (0, _resultClientJsDefault.default)._display(_server.resultsPage(nextPage));
+    (0, _paginationClientJsDefault.default)._display(_server.state.search);
 };
+// Resets everything back to original
 const homeControl = function() {
     (0, _resultClientJsDefault.default)._homePage();
     (0, _countryClientJsDefault.default)._homePage();
     (0, _paginationClientJsDefault.default)._homePage();
+    // Updates bookmark after hashchange so that active state is removed
+    window.addEventListener("hashchange", function() {
+        (0, _bookmarksClientJsDefault.default)._display(_server.state.bookmarks);
+    });
 };
+// Displays bookmarks
 const bookmarkControl = function() {
-    (0, _bookmarksClientJsDefault.default)._display(_serverJs.state.bookmarks);
+    (0, _bookmarksClientJsDefault.default)._display(_server.state.bookmarks);
 };
 const bookmarksButtonControl = function() {
-    if (!_serverJs.state.country.bookmarked) _serverJs.addBookmark(_serverJs.state.country);
-    else _serverJs.deleteBookmark(_serverJs.state.country.name);
-    // console.log(server.state.country);
-    // Update country view
-    (0, _countryClientJsDefault.default)._display(_serverJs.state.country);
-    (0, _countryClientJsDefault.default)._renderMap(_serverJs.state.country);
-    console.log(_serverJs.state.bookmarks);
-    if (_serverJs.state.bookmarks === undefined || _serverJs.state.bookmarks.length == 0) {
+    // If the country has not been bookmarked then bookmarked will be set to true, vice versa
+    if (!_server.state.country.bookmarked) _server.addBookmark(_server.state.country);
+    else _server.deleteBookmark(_server.state.country.name);
+    // Update country display
+    (0, _countryClientJsDefault.default)._display(_server.state.country);
+    (0, _countryClientJsDefault.default)._renderMap(_server.state.country);
+    // If there's no bookmarks, reset it back to original, otherwise display the bookmarks
+    if (_server.state.bookmarks === undefined || _server.state.bookmarks.length == 0) {
         (0, _bookmarksClientJsDefault.default)._homePage();
         (0, _bookmarksClientJsDefault.default)._bookmarkReset();
-    } else (0, _bookmarksClientJsDefault.default)._display(_serverJs.state.bookmarks);
+    } else (0, _bookmarksClientJsDefault.default)._display(_server.state.bookmarks);
 };
+// Initializes all the event handlers
 const init = function() {
     (0, _bookmarksClientJsDefault.default)._addHandler(bookmarkControl);
     (0, _countryClientJsDefault.default)._addHandler(countryControl);
@@ -614,7 +637,7 @@ const init = function() {
 };
 init();
 
-},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./server.js":"iIJIp","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB","./client/paginationClient.js":"64UxA","./client/homePage.js":"50n5D","./client/bookmarksClient.js":"lV9oS"}],"49tUX":[function(require,module,exports) {
+},{"core-js/modules/web.immediate.js":"49tUX","regenerator-runtime/runtime":"dXNgZ","regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","./client/countryClient.js":"amW5p","./client/searchClient.js":"kK9gW","./client/resultClient.js":"3VhHB","./client/paginationClient.js":"64UxA","./client/homePage.js":"50n5D","./client/bookmarksClient.js":"lV9oS","./server/server":"1tuu6"}],"49tUX":[function(require,module,exports) {
 // TODO: Remove this module from `core-js@4` since it's split to modules listed below
 require("../modules/web.clear-immediate");
 require("../modules/web.set-immediate");
@@ -2306,115 +2329,7 @@ exports.export = function(dest, destName, get) {
     });
 };
 
-},{}],"iIJIp":[function(require,module,exports) {
-var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
-parcelHelpers.defineInteropFlag(exports);
-parcelHelpers.export(exports, "COUNTRY_PER_PAGE", ()=>COUNTRY_PER_PAGE);
-parcelHelpers.export(exports, "state", ()=>state);
-parcelHelpers.export(exports, "createCountry", ()=>createCountry);
-parcelHelpers.export(exports, "searchResults", ()=>searchResults);
-parcelHelpers.export(exports, "resultsPage", ()=>resultsPage);
-parcelHelpers.export(exports, "addBookmark", ()=>addBookmark);
-parcelHelpers.export(exports, "deleteBookmark", ()=>deleteBookmark);
-var _regeneratorRuntime = require("regenerator-runtime");
-const TIMEOUT_TIME = 500;
-const COUNTRY_PER_PAGE = 9;
-const state = {
-    country: {},
-    search: {
-        results: [],
-        page: 1
-    },
-    bookmarks: []
-};
-const timeout = function(s) {
-    return new Promise(function(_, reject) {
-        setTimeout(function() {
-            reject(new Error(`Request took too long! Timeout after ${s} second`));
-        }, s * 1000);
-    });
-};
-const createCountry = async function(id) {
-    try {
-        const fetchPromise = await fetch(`https://restcountries.com/v3.1/name/${id}`);
-        const res = await Promise.race([
-            fetchPromise,
-            timeout(TIMEOUT_TIME)
-        ]);
-        const [data] = await res.json();
-        // console.log(data);
-        state.country = {
-            img: data.flags.png,
-            name: data.name.common,
-            officialName: data.name.official,
-            continent: data.continents[0],
-            area: data.area,
-            capital: data.capital,
-            citizens: data.demonyms.eng.m,
-            population: data.population,
-            lat: data.latlng[0],
-            lng: data.latlng[1],
-            region: data.region
-        };
-        if (state.bookmarks.some((bookmark)=>bookmark.name === id)) state.country.bookmarked = true;
-    } catch (err) {
-        throw err;
-    }
-};
-const searchResults = async function(search) {
-    try {
-        const fetchPromise = fetch(`https://restcountries.com/v3.1/region/${search}`);
-        const res = await Promise.race([
-            fetchPromise,
-            timeout(TIMEOUT_TIME)
-        ]);
-        const data = await res.json();
-        // console.log(data);
-        state.search.results = data.map((country)=>{
-            return {
-                name: country.name.common,
-                img: country.flags.png,
-                region: country.region
-            };
-        });
-        // console.log(state.search.results);
-        state.search.page = 1;
-    } catch (err) {
-        throw err;
-    }
-};
-const resultsPage = function(page = state.search.page) {
-    state.search.page = page;
-    const firstCountry = COUNTRY_PER_PAGE * (page - 1);
-    const lastCountry = COUNTRY_PER_PAGE * page;
-    return state.search.results.slice(firstCountry, lastCountry);
-};
-// searchResults("europe");
-const updateBookmarks = function() {
-    localStorage.setItem("bookmark", JSON.stringify(state.bookmarks));
-};
-const addBookmark = function(country) {
-    state.bookmarks.push(country);
-    if (country.name === state.country.name) state.country.bookmarked = true;
-    updateBookmarks();
-};
-const deleteBookmark = function(name) {
-    // Delete bookmark
-    const index = state.bookmarks.findIndex((el)=>el.name === name);
-    state.bookmarks.splice(index, 1);
-    if (name === state.country.name) state.country.bookmarked = false;
-    updateBookmarks();
-};
-const init = function() {
-    const storage = localStorage.getItem("bookmark");
-    if (storage) state.bookmarks = JSON.parse(storage);
-};
-init(); // const clearBookmarks = function () {
- //   localStorage.clear("bookmark");
- // };
- // clearBookmarks();
-
-},{"@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","regenerator-runtime":"dXNgZ"}],"amW5p":[function(require,module,exports) {
+},{}],"amW5p":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 var _iconsSvg = require("url:../../img/icons.svg");
@@ -2633,7 +2548,7 @@ class Client {
                 <use href="${(0, _iconsSvgDefault.default)}#icon-alert-triangle"></use>
               </svg>
             </div>
-            <p>${this._errorMessage}</p>
+            <p>${message}</p>
           </div>
     `;
         this._parentEl.innerHTML = "";
@@ -2943,14 +2858,11 @@ var _client = require("./Client");
 var _clientDefault = parcelHelpers.interopDefault(_client);
 class previewClient extends (0, _clientDefault.default) {
     _generateMarkup() {
-        console.log(this._data);
         return this._data.map(this._generatePreview).join();
-    // console.log(this._data);
     }
     _generatePreview(country) {
-        // console.log(country);
-        // console.log(country);
         const id = window.location.hash.slice(1);
+        console.log(id);
         return `
     <li class="preview">
       <a class="preview__link ${country.name === id ? "preview__link--active" : ""}" href="#${country.name}">
@@ -2975,7 +2887,7 @@ var _client = require("./Client");
 var _clientDefault = parcelHelpers.interopDefault(_client);
 var _iconsSvg = require("url:../../img/icons.svg");
 var _iconsSvgDefault = parcelHelpers.interopDefault(_iconsSvg);
-var _server = require("../server");
+var _server = require("../server/server");
 class paginationClient extends (0, _clientDefault.default) {
     _parentEl = document.querySelector(".pagination");
     _addHandler(handler) {
@@ -2983,15 +2895,12 @@ class paginationClient extends (0, _clientDefault.default) {
             const btn = e.target.closest(".btn--inline");
             if (!btn) return;
             const nextPage = +btn.dataset.next;
-            // console.log(nextPage);
             handler(nextPage);
         });
     }
     _generateMarkup() {
         const pages = Math.ceil(this._data.results.length / (0, _server.COUNTRY_PER_PAGE));
         const curPage = this._data.page;
-        // console.log(pages);
-        // console.log(this._data);
         if (curPage === 1 && pages > 1) return `
           <button class="btn--inline pagination__btn--next"  data-next="${curPage + 1}">
             <svg class="search__icon">
@@ -3026,7 +2935,120 @@ class paginationClient extends (0, _clientDefault.default) {
 }
 exports.default = new paginationClient();
 
-},{"./Client":"9d9Zb","url:../../img/icons.svg":"loVOp","../server":"iIJIp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"50n5D":[function(require,module,exports) {
+},{"./Client":"9d9Zb","url:../../img/icons.svg":"loVOp","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3","../server/server":"1tuu6"}],"1tuu6":[function(require,module,exports) {
+var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
+parcelHelpers.defineInteropFlag(exports);
+parcelHelpers.export(exports, "COUNTRY_PER_PAGE", ()=>COUNTRY_PER_PAGE);
+parcelHelpers.export(exports, "state", ()=>state);
+parcelHelpers.export(exports, "createCountry", ()=>createCountry);
+parcelHelpers.export(exports, "searchResults", ()=>searchResults);
+parcelHelpers.export(exports, "resultsPage", ()=>resultsPage);
+parcelHelpers.export(exports, "addBookmark", ()=>addBookmark);
+parcelHelpers.export(exports, "deleteBookmark", ()=>deleteBookmark);
+var _regeneratorRuntime = require("regenerator-runtime");
+const TIMEOUT_TIME = 500;
+const COUNTRY_PER_PAGE = 9;
+const state = {
+    country: {},
+    search: {
+        results: [],
+        page: 1
+    },
+    bookmarks: []
+};
+// Used to create a promise rejection error incase fetch request for country and region takes longer than 5s
+const timeout = function(s) {
+    return new Promise(function(_, reject) {
+        setTimeout(function() {
+            reject(new Error(`Request took too long! Timeout after ${s} second`));
+        }, s * 1000);
+    });
+};
+const createCountry = async function(country) {
+    try {
+        // Gets data from api
+        const fetchPromise = await fetch(`https://restcountries.com/v3.1/name/${country}`);
+        // race is used to get whichever parameter executes first
+        const res = await Promise.race([
+            fetchPromise,
+            timeout(TIMEOUT_TIME)
+        ]);
+        const [data] = await res.json();
+        // create object
+        state.country = {
+            img: data.flags.png,
+            name: data.name.common,
+            officialName: data.name.official,
+            continent: data.continents[0],
+            area: data.area,
+            capital: data.capital,
+            citizens: data.demonyms.eng.m,
+            population: data.population,
+            lat: data.latlng[0],
+            lng: data.latlng[1],
+            region: data.region
+        };
+        // If the country
+        if (state.bookmarks.some((bookmark)=>bookmark.name === country)) state.country.bookmarked = true;
+    } catch (err) {
+        throw err;
+    }
+};
+const searchResults = async function(search) {
+    try {
+        const fetchPromise = fetch(`https://restcountries.com/v3.1/region/${search}`);
+        const res = await Promise.race([
+            fetchPromise,
+            timeout(TIMEOUT_TIME)
+        ]);
+        const data = await res.json();
+        // console.log(data);
+        state.search.results = data.map((country)=>{
+            return {
+                name: country.name.common,
+                img: country.flags.png,
+                region: country.region
+            };
+        });
+        // console.log(state.search.results);
+        state.search.page = 1;
+    } catch (err) {
+        throw err;
+    }
+};
+const resultsPage = function(page = state.search.page) {
+    // Updates page num in the object
+    state.search.page = page;
+    const firstCountry = COUNTRY_PER_PAGE * (page - 1);
+    const lastCountry = COUNTRY_PER_PAGE * page;
+    return state.search.results.slice(firstCountry, lastCountry);
+};
+// Updates local storage
+const updateBookmarks = function() {
+    localStorage.setItem("bookmark", JSON.stringify(state.bookmarks));
+};
+const addBookmark = function(country) {
+    state.bookmarks.push(country);
+    if (country.name === state.country.name) state.country.bookmarked = true;
+    updateBookmarks();
+};
+const deleteBookmark = function(name) {
+    const index = state.bookmarks.findIndex((el)=>el.name === name);
+    state.bookmarks.splice(index, 1);
+    if (name === state.country.name) state.country.bookmarked = false;
+    updateBookmarks();
+};
+// Gets the bookmarks from local storage
+const init = function() {
+    const storage = localStorage.getItem("bookmark");
+    if (storage) state.bookmarks = JSON.parse(storage);
+};
+init(); // const clearBookmarks = function () {
+ //   localStorage.clear("bookmark");
+ // };
+ // clearBookmarks();
+
+},{"regenerator-runtime":"dXNgZ","@parcel/transformer-js/src/esmodule-helpers.js":"gkKU3"}],"50n5D":[function(require,module,exports) {
 var parcelHelpers = require("@parcel/transformer-js/src/esmodule-helpers.js");
 parcelHelpers.defineInteropFlag(exports);
 class homePage {
