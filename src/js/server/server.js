@@ -52,7 +52,7 @@ export const createCountry = async function (country) {
     // If the country
     if (state.bookmarks.some((bookmark) => bookmark.name === country))
       state.country.bookmarked = true;
-    else false;
+    else state.country.bookmarked = false;
   } catch (err) {
     throw err;
   }
@@ -123,8 +123,8 @@ const init = function () {
 };
 init();
 
-const clearBookmarks = function () {
-  localStorage.clear("bookmark");
-};
+// const clearBookmarks = function () {
+//   localStorage.clear("bookmark");
+// };
 
-clearBookmarks();
+// clearBookmarks();

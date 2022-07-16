@@ -25,7 +25,6 @@ class bookmarksClient extends previewClient {
   }
 
   _scroll(bookmarks) {
-    console.log(bookmarks.length);
     if (bookmarks.length > 10)
       this._parentEl.classList.add("bookmarks__list-overflow");
     else {
