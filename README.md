@@ -11,7 +11,7 @@
 <span>npm run build</span>
 
 <h1>File Structure</h1>
-<p>The files that are used to build the application are located inside the src folder. The src folder contains 3 folders:img, js and sass. 
+<p>The files that are used to build the application are located inside the src folder. The src folder contains 3 folders: img, js and sass. 
 <h2>img</h2>
 <p>The folder stores all images that are used in the application</p>
 <h2>sass</h2>
