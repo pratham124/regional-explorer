@@ -23,9 +23,6 @@ export default class previewClient extends Client {
     if (id.includes("%C3%AD")) {
       id = id.split("%C3%AD").join("í");
     }
-    if (id.includes("%C3%AD")) {
-      id = id.split("%C3%AD").join("í");
-    }
     if (id.includes("%C3%A7")) {
       id = id.split("%C3%A7").join("ç");
     }

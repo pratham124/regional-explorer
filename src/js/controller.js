@@ -83,7 +83,7 @@ const searchControl = async function () {
 };
 
 /**
- * Displays pagination
+ * Displays pagination to the DOM
  * @param {number} nextPage - used to display the next page
  */
 const paginationControl = function (nextPage) {
