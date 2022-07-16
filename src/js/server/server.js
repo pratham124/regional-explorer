@@ -26,7 +26,7 @@ export const createCountry = async function (country) {
   try {
     // Gets data from api
     const fetchPromise = await fetch(
-      `https://restcountries.com/v3.1/name/${country}`
+      `https://restcountries.com/v3.1/name/${country}?fullText=true`
     );
 
     // race is used to get whichever parameter executes first
@@ -64,7 +64,7 @@ export const searchResults = async function (search) {
     );
     const res = await Promise.race([fetchPromise, timeout(TIMEOUT_TIME)]);
     const data = await res.json();
-    // console.log(data);
+
     state.search.results = data.map((country) => {
       return {
         name: country.name.common,
@@ -72,7 +72,7 @@ export const searchResults = async function (search) {
         region: country.region,
       };
     });
-    // console.log(state.search.results);
+
     state.search.page = 1;
   } catch (err) {
     throw err;

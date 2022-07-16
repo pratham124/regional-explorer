@@ -15,9 +15,27 @@ const countryControl = async function () {
   try {
     // Gets the value after # from web url
     let country = window.location.hash.slice(1);
+
+    // Converts characters from the hash to its orginal state
     if (country.includes("%20")) {
       country = country.split("%20").join(" ");
     }
+    if (country.includes("%C3%85")) {
+      country = country.split("%C3%85").join("Å");
+    }
+    if (country.includes("%C3%A9")) {
+      country = country.split("%C3%A9").join("é");
+    }
+    if (country.includes("%C3%A3")) {
+      country = country.split("%C3%A3").join("ã");
+    }
+    if (country.includes("%C3%AD")) {
+      country = country.split("%C3%AD").join("í");
+    }
+    if (country.includes("%C3%A7")) {
+      country = country.split("%C3%A7").join("ç");
+    }
+
     // Guard clause incase theres no country
     if (!country) return;
     // Before the country loads a spinner transformation is displayed
@@ -88,6 +106,7 @@ const homeControl = function () {
 // Displays bookmarks
 const bookmarkControl = function () {
   bookmarksClient._display(server.state.bookmarks);
+  bookmarksClient._scroll(server.state.bookmarks);
 };
 
 const bookmarksButtonControl = function () {
@@ -108,7 +127,7 @@ const bookmarksButtonControl = function () {
     bookmarksClient._homePage();
     bookmarksClient._bookmarkReset();
   } else {
-    bookmarksClient._display(server.state.bookmarks);
+    bookmarkControl();
   }
 };
 

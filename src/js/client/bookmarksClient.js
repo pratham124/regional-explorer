@@ -23,6 +23,15 @@ class bookmarksClient extends previewClient {
 
     this._parentEl.insertAdjacentHTML("afterbegin", markup);
   }
+
+  _scroll(bookmarks) {
+    console.log(bookmarks.length);
+    if (bookmarks.length > 10)
+      this._parentEl.classList.add("bookmarks__list-overflow");
+    else {
+      this._parentEl.classList.remove("bookmarks__list-overflow");
+    }
+  }
 }
 
 export default new bookmarksClient();

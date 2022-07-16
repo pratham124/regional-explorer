@@ -11,6 +11,25 @@ export default class previewClient extends Client {
     if (id.includes("%20")) {
       id = id.split("%20").join(" ");
     }
+    if (id.includes("%C3%85")) {
+      id = id.split("%C3%85").join("Å");
+    }
+    if (id.includes("%C3%A9")) {
+      id = id.split("%C3%A9").join("é");
+    }
+    if (id.includes("%C3%A3")) {
+      id = id.split("%C3%A3").join("ã");
+    }
+    if (id.includes("%C3%AD")) {
+      id = id.split("%C3%AD").join("í");
+    }
+    if (id.includes("%C3%AD")) {
+      id = id.split("%C3%AD").join("í");
+    }
+    if (id.includes("%C3%A7")) {
+      id = id.split("%C3%A7").join("ç");
+    }
+
     return `
     <li class="preview">
       <a class="preview__link ${

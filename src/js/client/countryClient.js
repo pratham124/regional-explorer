@@ -9,7 +9,6 @@ class countryClient extends Client {
   _errorMessage = "We could not find that country. Please try another one!";
 
   _renderMap(data) {
-    // console.log(data.lat);
     const loader = new Loader({
       apiKey: googleMapsApi,
       version: "weekly",

@@ -555,7 +555,13 @@ const countryControl = async function() {
     try {
         // Gets the value after # from web url
         let country = window.location.hash.slice(1);
+        // Converts characters from the hash to its orginal state
         if (country.includes("%20")) country = country.split("%20").join(" ");
+        if (country.includes("%C3%85")) country = country.split("%C3%85").join("\xc5");
+        if (country.includes("%C3%A9")) country = country.split("%C3%A9").join("\xe9");
+        if (country.includes("%C3%A3")) country = country.split("%C3%A3").join("\xe3");
+        if (country.includes("%C3%AD")) country = country.split("%C3%AD").join("\xed");
+        if (country.includes("%C3%A7")) country = country.split("%C3%A7").join("\xe7");
         // Guard clause incase theres no country
         if (!country) return;
         // Before the country loads a spinner transformation is displayed
@@ -613,6 +619,7 @@ const homeControl = function() {
 // Displays bookmarks
 const bookmarkControl = function() {
     (0, _bookmarksClientJsDefault.default)._display(_server.state.bookmarks);
+    (0, _bookmarksClientJsDefault.default)._scroll(_server.state.bookmarks);
 };
 const bookmarksButtonControl = function() {
     // If the country has not been bookmarked then bookmarked will be set to true, vice versa
@@ -625,7 +632,7 @@ const bookmarksButtonControl = function() {
     if (_server.state.bookmarks === undefined || _server.state.bookmarks.length == 0) {
         (0, _bookmarksClientJsDefault.default)._homePage();
         (0, _bookmarksClientJsDefault.default)._bookmarkReset();
-    } else (0, _bookmarksClientJsDefault.default)._display(_server.state.bookmarks);
+    } else bookmarkControl();
 };
 // Initializes all the event handlers
 const init = function() {
@@ -2343,7 +2350,6 @@ class countryClient extends (0, _clientDefault.default) {
     _parentEl = document.querySelector(".country");
     _errorMessage = "We could not find that country. Please try another one!";
     _renderMap(data) {
-        // console.log(data.lat);
         const loader = new (0, _jsApiLoader.Loader)({
             apiKey: googleMapsApi,
             version: "weekly",
@@ -2864,6 +2870,12 @@ class previewClient extends (0, _clientDefault.default) {
     _generatePreview(country) {
         let id = window.location.hash.slice(1);
         if (id.includes("%20")) id = id.split("%20").join(" ");
+        if (id.includes("%C3%85")) id = id.split("%C3%85").join("\xc5");
+        if (id.includes("%C3%A9")) id = id.split("%C3%A9").join("\xe9");
+        if (id.includes("%C3%A3")) id = id.split("%C3%A3").join("\xe3");
+        if (id.includes("%C3%AD")) id = id.split("%C3%AD").join("\xed");
+        if (id.includes("%C3%AD")) id = id.split("%C3%AD").join("\xed");
+        if (id.includes("%C3%A7")) id = id.split("%C3%A7").join("\xe7");
         return `
     <li class="preview">
       <a class="preview__link ${country.name === id ? "preview__link--active" : ""}" href="#${country.name}">
@@ -2968,7 +2980,7 @@ const timeout = function(s) {
 const createCountry = async function(country) {
     try {
         // Gets data from api
-        const fetchPromise = await fetch(`https://restcountries.com/v3.1/name/${country}`);
+        const fetchPromise = await fetch(`https://restcountries.com/v3.1/name/${country}?fullText=true`);
         // race is used to get whichever parameter executes first
         const res = await Promise.race([
             fetchPromise,
@@ -3003,7 +3015,6 @@ const searchResults = async function(search) {
             timeout(TIMEOUT_TIME)
         ]);
         const data = await res.json();
-        // console.log(data);
         state.search.results = data.map((country)=>{
             return {
                 name: country.name.common,
@@ -3011,7 +3022,6 @@ const searchResults = async function(search) {
                 region: country.region
             };
         });
-        // console.log(state.search.results);
         state.search.page = 1;
     } catch (err) {
         throw err;
@@ -3089,6 +3099,11 @@ class bookmarksClient extends (0, _previewClientDefault.default) {
       </p>
     </div>`;
         this._parentEl.insertAdjacentHTML("afterbegin", markup);
+    }
+    _scroll(bookmarks) {
+        console.log(bookmarks.length);
+        if (bookmarks.length > 10) this._parentEl.classList.add("bookmarks__list-overflow");
+        else this._parentEl.classList.remove("bookmarks__list-overflow");
     }
 }
 exports.default = new bookmarksClient();
