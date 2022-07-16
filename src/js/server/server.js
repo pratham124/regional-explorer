@@ -25,6 +25,7 @@ const timeout = function (s) {
 export const createCountry = async function (country) {
   try {
     // Gets data from api
+    console.log(data);
     const fetchPromise = await fetch(
       `https://restcountries.com/v3.1/name/${country}?fullText=true`
     );
