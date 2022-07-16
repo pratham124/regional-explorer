@@ -1,6 +1,6 @@
-<img src="src/img/favicon-32x32.png">
+<img src="src/img/favicon_io-32x32.png">
 <h1>Regional Explorer</h1>
-<p>Application where users can explore regions and all the countries that are in each region. Users can bookmark a country and visit them under bookmarks tab. The bookmarks are stored in local storage, so users can bookmark to view them at a later time. Valid regions are Africa, Americas, Asia, Europe and Oceania. restcountries API was used to fetch data on region and countries. While googlemaps API was used to generate a map based on the coordinates of a country.</p>
+<p>An application where users can explore regions and all the countries that are in each region. Users can bookmark a country and visit them under bookmarks tab. The bookmarks are stored in local storage, so users can bookmark to view them at a later time. Valid regions are Africa, Americas, Asia, Europe and Oceania. Restcountries API was used to fetch data on region and countries. While googlemaps API was used to generate a map based on the coordinates of a country.</p>
 
 <h1>Installation</h1>
 <h2>Download the ZIP or:</h2>
