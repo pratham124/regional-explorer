@@ -31,6 +31,7 @@ export const createCountry = async function (country) {
 
     // race is used to get whichever parameter executes first
     const res = await Promise.race([fetchPromise, timeout(TIMEOUT_TIME)]);
+    if (!res.ok) throw new Error("Invalid Country");
     const [data] = await res.json();
 
     // create object
@@ -63,6 +64,7 @@ export const searchResults = async function (search) {
       `https://restcountries.com/v3.1/region/${search}`
     );
     const res = await Promise.race([fetchPromise, timeout(TIMEOUT_TIME)]);
+    if (!res.ok) throw new Error("Invalid Region");
     const data = await res.json();
 
     state.search.results = data.map((country) => {

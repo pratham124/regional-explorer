@@ -2345,6 +2345,7 @@ const createCountry = async function(country) {
             fetchPromise,
             timeout(TIMEOUT_TIME)
         ]);
+        if (!res.ok) throw new Error("Invalid Country");
         const [data] = await res.json();
         // create object
         state.country = {
@@ -2374,6 +2375,7 @@ const searchResults = async function(search) {
             fetchPromise,
             timeout(TIMEOUT_TIME)
         ]);
+        if (!res.ok) throw new Error("Invalid Region");
         const data = await res.json();
         state.search.results = data.map((country)=>{
             return {
