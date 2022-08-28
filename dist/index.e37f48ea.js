@@ -3052,7 +3052,7 @@ class paginationClient extends (0, _clientDefault.default) {
           <button class="btn--inline pagination__btn--next" data-next = " ${curPage + 1}">
             <span>${curPage + 1}</span>
             <svg class="search__icon">
-              <use href="${0, _iconsSvgDefault.default}.svg#icon-arrow-right"></use>
+              <use href="${0, _iconsSvgDefault.default}#icon-arrow-right"></use>
             </svg>
           </button>
       `;
